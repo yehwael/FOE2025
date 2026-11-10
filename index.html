@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -1692,18 +1692,37 @@
         ];
 
         // State Variables
+        const STORAGE_KEY = 'cpe211_exam_progress_v1';
         let activeMode = 'test1';
         let userAnswers = {}; // { qId: chosenIndex }
         let currentQuestions = [];
 
+        // Persistence (localStorage) - survives reload / closing the browser
+        function loadProgress() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                if (saved.answers && typeof saved.answers === 'object') userAnswers = saved.answers;
+                if (saved.mode) activeMode = saved.mode;
+            } catch (e) { /* storage unavailable or corrupted: start fresh */ }
+        }
+
+        function saveProgress() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers: userAnswers, mode: activeMode }));
+            } catch (e) { /* ignore */ }
+        }
+
         // App Initialization
         window.onload = function() {
-            selectMode('test1');
+            loadProgress();
+            const valid = ['test1','test2','test3','test4','test5','test6','all'];
+            selectMode(valid.includes(activeMode) ? activeMode : 'test1');
         };
 
         // Mode Switcher
         function selectMode(mode) {
             activeMode = mode;
+            saveProgress();
             
             // Update Tab Styling
             document.querySelectorAll('.mode-tab').forEach(tab => {
@@ -1854,6 +1873,7 @@
         // Option Selection Handler
         function handleOptionSelect(qId, idx) {
             userAnswers[qId] = idx;
+            saveProgress();
             renderQuestions();
             updateScoreAndGrid();
         }
