@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPE211: Energy Resources Exam Simulator - E-JUST</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX CSS & JS for LaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .katex-display {
+            margin: 0.3em 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(4px);
+            border-color: #38bdf8;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-12">
+
+    <!-- Sticky Navigation Header -->
+    <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                
+                <!-- Logo & Title -->
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-xl text-white shadow-lg shadow-sky-500/20">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400">
+                            CPE211: Energy Resources Exam Simulator
+                        </h1>
+                        <p class="text-[11px] text-slate-400 font-medium">
+                            Egypt-Japan University of Science & Technology (E-JUST) • 100% English Practice Suite
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Controls & Live Stats -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Live Score Badge -->
+                    <div class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-400"></i>
+                        <span class="text-slate-400">Score:</span>
+                        <span id="score-text" class="font-bold text-sky-400">0 / 0 (0%)</span>
+                    </div>
+
+                    <!-- Question Grid Button -->
+                    <button onclick="toggleGridModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-border-all text-indigo-400"></i>
+                        <span>Grid (Q1-150)</span>
+                    </button>
+
+                    <!-- Formula Sheet Button -->
+                    <button onclick="toggleFormulaModal()" class="px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 rounded-xl text-xs font-bold text-indigo-300 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-square-root-variable"></i>
+                        <span>Formula Sheet</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mode Selector Tabs -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pt-3 pb-1 text-xs font-bold no-scrollbar border-t border-slate-800/80 mt-2.5">
+                <button onclick="selectMode('test1')" id="tab-test1" class="mode-tab px-3 py-1.5 rounded-lg bg-sky-500 text-white shadow-md shadow-sky-500/20 whitespace-nowrap">Test 1 (Q1-25)</button>
+                <button onclick="selectMode('test2')" id="tab-test2" class="mode-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">Test 2 (Q26-50)</button>
+                <button onclick="selectMode('test3')" id="tab-test3" class="mode-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">Test 3 (Q51-75)</button>
+                <button onclick="selectMode('test4')" id="tab-test4" class="mode-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">Test 4 (Q76-100)</button>
+                <button onclick="selectMode('test5')" id="tab-test5" class="mode-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">Test 5 (Q101-125)</button>
+                <button onclick="selectMode('test6')" id="tab-test6" class="mode-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">Test 6 (Q126-150)</button>
+                <button onclick="selectMode('all')" id="tab-all" class="mode-tab px-3 py-1.5 rounded-lg bg-purple-600/30 text-purple-300 border border-purple-500/40 hover:bg-purple-600/50 whitespace-nowrap">Full 150 Exam</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-grow w-full">
+
+        <!-- Top Search Bar & Topic Filter -->
+        <div class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 p-4 glass-card rounded-2xl">
+            <!-- Search Input -->
+            <div class="relative w-full sm:w-80">
+                <input type="text" id="search-input" onkeyup="filterQuestions()" placeholder="Search questions, equations, topics..." 
+                       class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            </div>
+
+            <!-- Topic Filter Dropdown -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <span class="text-xs text-slate-400 font-semibold whitespace-nowrap"><i class="fa-solid fa-filter text-sky-400 mr-1"></i> Topic:</span>
+                <select id="topic-select" onchange="filterQuestions()" class="w-full sm:w-64 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-sky-500">
+                    <option value="all">All Topics & Lectures</option>
+                    <option value="Lecture 1 & Energy Units">Lecture 1 & Energy Units</option>
+                    <option value="Solar PV Systems">Solar PV Systems & Mismatch</option>
+                    <option value="Wind & Wave Energy">Wind & Wave Hydro Power</option>
+                    <option value="Geothermal, Biomass & Nuclear">Geothermal, Biomass & Nuclear</option>
+                    <option value="IC Engines">IC Engines (IP, BP, FP, AFR)</option>
+                    <option value="Refrigeration & Power Plants">HVAC, Carnot & Steam Plants</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Question List Container -->
+        <div id="questions-container" class="space-y-6">
+            <!-- Questions rendered via JS -->
+        </div>
+
+    </main>
+
+    <!-- Question Grid Navigator Modal -->
+    <div id="grid-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-border-all text-indigo-400"></i> Question Navigator (Q1 - Q150)
+                </h3>
+                <button onclick="toggleGridModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-grow">
+                <div id="grid-items" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                    <!-- Grid items populated by JS -->
+                </div>
+            </div>
+            <div class="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-around">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block"></span> Unanswered</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Correct</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Incorrect</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formula Reference Modal -->
+    <div id="formula-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-sky-400 flex items-center gap-2">
+                    <i class="fa-solid fa-square-root-variable"></i> CPE211 Core Mathematical Formulas Reference
+                </h3>
+                <button onclick="toggleFormulaModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 text-xs text-slate-300">
+                
+                <!-- Unit Conversions -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-sky-300 mb-2">1. Energy Units & Mechanical Power</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-200">
+                        <p>$1\text{ kWh} = 3.6 \times 10^6\text{ J} = 3412\text{ Btu}$</p>
+                        <p>$1\text{ Btu} = 1055\text{ J} \quad \mid \quad 1\text{ cal} = 4.184\text{ J}$</p>
+                        <p>$1\text{ toe} = 4.5 \times 10^{10}\text{ J} \quad \mid \quad 1\text{ barrel} = 6 \times 10^9\text{ J}$</p>
+                        <p>$PE = mgh \quad \mid \quad KE = \frac{1}{2} m V^2$</p>
+                    </div>
+                </div>
+
+                <!-- Solar PV -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-yellow-300 mb-2">2. Solar Photovoltaic (PV) Systems</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-200">
+                        <p>$\eta_{\text{cell}} = \frac{P_{\text{out}}}{P_{\text{in}}} = \frac{V \cdot I}{G \cdot A}$</p>
+                        <p>$\eta(T) = \eta_{\text{ref}} \left[ 1 - \beta_{\text{ref}} (T - T_{\text{ref}}) \right]$</p>
+                        <p>$\text{Series: } V_T = \sum V_i, \quad I_T = \min(I_1, I_2, \dots)$</p>
+                        <p>$\text{Parallel: } I_T = \sum I_i, \quad V_T = \min(V_1, V_2, \dots)$</p>
+                    </div>
+                </div>
+
+                <!-- Wind & Wave -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-teal-300 mb-2">3. Wind Turbine & Ocean Wave Power</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-200">
+                        <p>$P_{\text{wind, inlet}} = \frac{1}{2} \rho A V^3 = \frac{1}{2} \rho \left(\frac{\pi}{4} D^2\right) V^3$</p>
+                        <p>$P_{\text{elec}} = P_{\text{wind, inlet}} \cdot C_p \cdot \eta_m \cdot \eta_g \quad (\text{Betz: } C_{p,\max} = \frac{16}{27} \approx 0.593)$</p>
+                        <p>$P_{\text{wave}} = \frac{\rho A g^2 a^2}{8\pi} \sqrt{\frac{2\pi\lambda}{g}}$</p>
+                        <p>$\text{Wave Amplitude } a = \frac{H}{2} \quad (\text{Half of vertical height})$</p>
+                    </div>
+                </div>
+
+                <!-- IC Engines -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-indigo-300 mb-2">4. Internal Combustion Engines (ICE)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-200">
+                        <p>$IP = BP + FP \implies FP = IP - BP \quad (\text{Constant at partial loads})$</p>
+                        <p>$\eta_m = \frac{BP}{IP} \quad \mid \quad \eta_{m, x\%} = \frac{x \cdot BP_{\text{full}}}{(x \cdot BP_{\text{full}}) + FP}$</p>
+                        <p>$\eta_{\text{ith}} = \frac{IP}{\dot{m}_f \cdot C.V.} \quad \mid \quad \eta_{\text{bth}} = \frac{BP}{\dot{m}_f \cdot C.V.}$</p>
+                        <p>$\text{Air-Fuel Ratio (AFR)} = \frac{\dot{m}_a}{\dot{m}_f}$</p>
+                    </div>
+                </div>
+
+                <!-- Refrigeration & Steam Power -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-purple-300 mb-2">5. HVAC, Carnot Limits & Rankine Steam Power Plants</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-200">
+                        <p>$Q_H = Q_L + W \quad \mid \quad COP_{HP} = COP_R + 1$</p>
+                        <p>$COP_{R, \text{Carnot}} = \frac{T_L}{T_H - T_L} \quad (\text{Temperatures strictly in Kelvin})$</p>
+                        <p>$\eta_{\text{Rankine}} = \frac{W_{\text{net}}}{Q_{\text{boiler}}} = \frac{W_{\text{turbine}} - W_{\text{pump}}}{Q_{\text{boiler}}}$</p>
+                        <p>$\eta_{\text{overall}} = \frac{P_{\text{elec, net}}}{\dot{m}_f \cdot C.V.}$</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Code -->
+    <script>
+        // Data structure for 150 Questions
+        const rawQuestions = [
+            // TEST 1: Q1 - Q25 (Energy Units, Fundamentals & Mechanics)
+            {
+                id: 1,
+                category: "Lecture 1 & Energy Units",
+                q: "What is the physical definition of energy as stated in CPE211 Lecture 1?",
+                options: [
+                    "The rate of doing work per unit time",
+                    "A property of matter that can be converted into work, heat, or radiation",
+                    "The force applied over a distance of one meter",
+                    "The velocity of electron flow through a conductor"
+                ],
+                ans: 1,
+                exp: "Energy is defined as a property of matter that can be converted into work, heat, or radiation. Power is the rate of doing work per unit time."
+            },
+            {
+                id: 2,
+                category: "Lecture 1 & Energy Units",
+                q: "Which unit equivalence represents one Watt (1 W)?",
+                options: ["1 N·m", "1 J/s", "1 kWh", "3.6 × 10^6 J"],
+                ans: 1,
+                exp: "Power = Energy / Time. Therefore, 1 Watt (W) = 1 Joule per second (1 J/s)."
+            },
+            {
+                id: 3,
+                category: "Lecture 1 & Energy Units",
+                q: "A wooden match is ignited, releasing heat and light. What form of energy was stored in the match prior to ignition?",
+                options: ["Elastic potential energy", "Electromagnetic energy", "Chemical potential energy", "Nuclear energy"],
+                ans: 2,
+                exp: "Energy stored in chemical bonds of matter (like wood, matchsticks, or fossil fuels) is Chemical Potential Energy."
+            },
+            {
+                id: 4,
+                category: "Lecture 1 & Energy Units",
+                q: "Convert an energy quantity of 2.5 kWh into Joules (J).",
+                options: ["2.5 × 10^3 J", "8.53 × 10^3 J", "9.0 × 10^6 J", "1.055 × 10^6 J"],
+                ans: 2,
+                exp: "Since 1 kWh = 3.6 × 10^6 J, then 2.5 kWh = 2.5 × 3.6 × 10^6 = 9.0 × 10^6 Joules (9 MJ)."
+            },
+            {
+                id: 5,
+                category: "Lecture 1 & Energy Units",
+                q: "You serve a volleyball with a mass of 2.1 kg. The ball leaves your hand with a speed of 30 m/s. Calculate its kinetic energy. [Sheet 1 Q4]",
+                options: ["30 J", "945 J", "1890 J", "630 J"],
+                ans: 1,
+                exp: "Kinetic Energy KE = 0.5 × m × v^2 = 0.5 × 2.1 kg × (30 m/s)^2 = 0.5 × 2.1 × 900 = 945 Joules."
+            },
+            {
+                id: 6,
+                category: "Lecture 1 & Energy Units",
+                q: "A bell of mass 19 kg is placed at the top of a tower 45 m high. Calculate its gravitational potential energy (g = 9.81 m/s²). [Sheet 1 Q5]",
+                options: ["855 J", "8387.55 J", "4189.5 J", "1710 J"],
+                ans: 1,
+                exp: "Potential Energy PE = m × g × h = 19 kg × 9.81 m/s² × 45 m = 8,387.55 Joules."
+            },
+            {
+                id: 7,
+                category: "Lecture 1 & Energy Units",
+                q: "Approximately how many barrels of crude oil are contained in 1 Tonne of Oil Equivalent (1 toe)?",
+                options: ["3.41 barrels", "6.0 barrels", "7.5 barrels", "12.0 barrels"],
+                ans: 2,
+                exp: "1 toe ≈ 4.5 × 10^10 J, and 1 barrel ≈ 6.0 × 10^9 J. Thus, 1 toe contains approximately 7.5 barrels of oil."
+            },
+            {
+                id: 8,
+                category: "Lecture 1 & Energy Units",
+                q: "An electric motor performs 180,000 J of work in 5 minutes. What is the power output of the motor in Watts?",
+                options: ["36,000 W", "600 W", "3,600 W", "1,000 W"],
+                ans: 1,
+                exp: "Time t = 5 minutes = 300 seconds. Power P = Work / Time = 180,000 J / 300 s = 600 W."
+            },
+            {
+                id: 9,
+                category: "Lecture 1 & Energy Units",
+                q: "Convert 500 Btu (British Thermal Units) into Joules.",
+                options: ["5.275 × 10^5 J", "2.105 × 10^3 J", "1.705 × 10^6 J", "5.275 × 10^2 J"],
+                ans: 0,
+                exp: "Since 1 Btu = 1055 J, 500 Btu = 500 × 1055 J = 527,500 J = 5.275 × 10^5 J."
+            },
+            {
+                id: 10,
+                category: "Lecture 1 & Energy Units",
+                q: "Which technique directly converts chemical energy into kinetic energy? [Sheet 1 Q1]",
+                options: ["Photovoltaic panel", "Internal Combustion Engine (ICE)", "Solar thermal collector", "Hydroelectric turbine"],
+                ans: 1,
+                exp: "An Internal Combustion Engine burns chemical fuel to produce expanding gas that drives a piston into linear kinetic motion."
+            },
+            {
+                id: 11,
+                category: "Lecture 1 & Energy Units",
+                q: "Which technology directly converts thermal energy into electric energy without moving parts? [Sheet 1 Q1]",
+                options: ["Thermoelectric Generator (TEG)", "Electric Generator", "Solar Flat Collector", "Wind Turbine"],
+                ans: 0,
+                exp: "Thermoelectric generators (Seebeck effect) directly convert temperature differences (thermal energy) into electricity."
+            },
+            {
+                id: 12,
+                category: "Lecture 1 & Energy Units",
+                q: "What is the expected average annual growth rate of global energy demand up to 2030?",
+                options: ["0.5%", "1.6%", "5.0%", "10.0%"],
+                ans: 1,
+                exp: "Global primary energy demand is projected to grow at an average rate of 1.6% per year through 2030."
+            },
+            {
+                id: 13,
+                category: "Lecture 1 & Energy Units",
+                q: "What percentage of the total projected growth in global energy demand originates from developing countries?",
+                options: ["Less than 30%", "50%", "More than 70%", "95%"],
+                ans: 2,
+                exp: "Developing economies (like China and India) account for over 70% of the net growth in global energy demand."
+            },
+            {
+                id: 14,
+                category: "Lecture 1 & Energy Units",
+                q: "Which energy consumption sectors exhibit the highest overall growth up to 2030?",
+                options: ["Agriculture & Forestry", "Power Generation & Transport", "Residential Lighting", "Financial Services"],
+                ans: 1,
+                exp: "Electricity power generation and the transport sector represent the highest growth areas for energy demand globally."
+            },
+            {
+                id: 15,
+                category: "Lecture 1 & Energy Units",
+                q: "Electromagnetic energy includes all of the following EXCEPT:",
+                options: ["Gamma rays and X-rays", "Visible light and UV rays", "Radio waves and Microwaves", "Flow of electrons inside a copper wire"],
+                ans: 3,
+                exp: "The flow of electrons through a copper wire is electrical energy, whereas electromagnetic energy consists of photons/radiant waves."
+            },
+            {
+                id: 16,
+                category: "Lecture 1 & Energy Units",
+                q: "The 'Therm' is an energy unit standard commonly utilized in which industry?",
+                options: ["Oil Refining", "Refrigeration", "Natural Gas Supply", "Nuclear Power"],
+                ans: 2,
+                exp: "1 Therm = 100,000 Btu = 1.055 × 10^8 J, and is standard in commercial natural gas billing."
+            },
+            {
+                id: 17,
+                category: "Lecture 1 & Energy Units",
+                q: "Which of the following is classified as a Secondary (Derived) Energy Resource?",
+                options: ["Crude Oil", "Coke / Producer Gas", "Natural Gas", "Solar Radiation"],
+                ans: 1,
+                exp: "Coke and synthetic producer gas are derived secondary fuels produced by processing primary coal/biomass."
+            },
+            {
+                id: 18,
+                category: "Lecture 1 & Energy Units",
+                q: "What is the mechanical energy equivalent of 1 Calorie (cal)?",
+                options: ["1055 J", "3.6 × 10^6 J", "4.184 J", "0.239 J"],
+                ans: 2,
+                exp: "1 Calorie (cal) = 4.184 Joules."
+            },
+            {
+                id: 19,
+                category: "Lecture 1 & Energy Units",
+                q: "Lifting a 10 kg mass vertically by 20 m increases its potential energy by (g = 9.81 m/s²):",
+                options: ["200 J", "1962 J", "981 J", "490 J"],
+                ans: 1,
+                exp: "PE = m × g × h = 10 kg × 9.81 m/s² × 20 m = 1962 Joules."
+            },
+            {
+                id: 20,
+                category: "Lecture 1 & Energy Units",
+                q: "If the speed of a moving object is doubled from V to 2V, its kinetic energy increases by a factor of:",
+                options: ["2", "3", "4", "8"],
+                ans: 2,
+                exp: "Since KE = 0.5 × m × V², doubling velocity (2V)² quadruples kinetic energy (2² = 4 times)."
+            },
+            {
+                id: 21,
+                category: "Lecture 1 & Energy Units",
+                q: "A transformer with an efficiency of 90% accepts 1000 J of electrical energy. How much heat is wasted?",
+                options: ["900 J", "100 J", "90 J", "10 J"],
+                ans: 1,
+                exp: "Useful Output = 1000 × 0.90 = 900 J. Wasted Heat = Total Input - Output = 1000 - 900 = 100 J."
+            },
+            {
+                id: 22,
+                category: "Lecture 1 & Energy Units",
+                q: "Calculate the work done when a force of 50 N moves an object through a displacement of 4 m in the direction of the force.",
+                options: ["12.5 J", "200 J", "200 W", "0.8 J"],
+                ans: 1,
+                exp: "Work W = Force × Distance = 50 N × 4 m = 200 Joules."
+            },
+            {
+                id: 23,
+                category: "Lecture 1 & Energy Units",
+                q: "One Tonne of Oil Equivalent (1 toe) equals approximately:",
+                options: ["4.5 × 10^10 J", "1.055 × 10^8 J", "3.6 × 10^6 J", "6.0 × 10^9 J"],
+                ans: 0,
+                exp: "1 toe is standardized at 41.86 to 45 GJ (4.5 × 10^10 Joules)."
+            },
+            {
+                id: 24,
+                category: "Lecture 1 & Energy Units",
+                q: "Hydroelectric power plants utilize which primary form of mechanical energy before driving turbines?",
+                options: ["Elastic energy", "Gravitational Potential Energy of stored water", "Chemical energy", "Nuclear energy"],
+                ans: 1,
+                exp: "Water stored in high reservoirs possesses gravitational potential energy (mgh) converted to kinetic energy upon release."
+            },
+            {
+                id: 25,
+                category: "Lecture 1 & Energy Units",
+                q: "Power is defined mathematically as:",
+                options: ["Work × Distance", "Force / Time", "dE / dt (Rate of energy transfer over time)", "Mass × Acceleration"],
+                ans: 2,
+                exp: "Power P = dE/dt = Work / Time (Joule/second = Watt)."
+            },
+
+            // TEST 2: Q26 - Q50 (Solar PV Systems & Mismatch)
+            {
+                id: 26,
+                category: "Solar PV Systems",
+                q: "In which zone of the sun does nuclear fusion energy generation primarily take place?",
+                options: ["Corona", "Solar Core", "Photosphere", "Prominences"],
+                ans: 1,
+                exp: "Nuclear fusion (hydrogen to helium) occurs exclusively in the high-temperature, high-pressure Solar Core."
+            },
+            {
+                id: 27,
+                category: "Solar PV Systems",
+                q: "Solar photovoltaic cells are predominantly manufactured from which semiconductor element?",
+                options: ["Copper", "Silicon", "Graphite", "Aluminum"],
+                ans: 1,
+                exp: "Silicon (monocrystalline, polycrystalline, or amorphous) is the primary semiconductor material for PV cells."
+            },
+            {
+                id: 28,
+                category: "Solar PV Systems",
+                q: "A single PV cell (10 cm × 10 cm) produces 0.5 V and 2.5 A under solar insolation G = 800 W/m². Calculate its efficiency. [Sheet 1 Q7/8]",
+                options: ["12.5%", "15.625%", "20.0%", "9.375%"],
+                ans: 1,
+                exp: "Area A = 0.1 m × 0.1 m = 0.01 m². Input Power P_in = G × A = 800 × 0.01 = 8.0 W. Output Power P_out = V × I = 0.5 × 2.5 = 1.25 W. Efficiency η = 1.25 / 8.0 = 0.15625 = 15.625%."
+            },
+            {
+                id: 29,
+                category: "Solar PV Systems",
+                q: "A PV cell produces 0.5 V and 2.0 A under 800 W/m² insolation with an efficiency of 12.5%. Calculate the cell area. [Sheet 1 Q9]",
+                options: ["0.005 m²", "0.01 m² (100 cm²)", "0.02 m²", "0.1 m²"],
+                ans: 1,
+                exp: "P_out = 0.5 V × 2.0 A = 1.0 W. Since η = P_out / (G × A), A = P_out / (G × η) = 1.0 / (800 × 0.125) = 1.0 / 100 = 0.01 m² = 100 cm²."
+            },
+            {
+                id: 30,
+                category: "Solar PV Systems",
+                q: "Four identical PV cells (0.5 V, 2.0 A each) are connected in PARALLEL. What is the total voltage and power output? [Sheet 1 Q9]",
+                options: ["V_T = 2.0 V, P_T = 4.0 W", "V_T = 0.5 V, P_T = 4.0 W", "V_T = 0.5 V, P_T = 1.0 W", "V_T = 2.0 V, P_T = 1.0 W"],
+                ans: 1,
+                exp: "In parallel: Voltage remains constant V_T = 0.5 V. Total current I_T = 4 × 2.0 A = 8.0 A. Total Power P_T = 0.5 V × 8.0 A = 4.0 W."
+            },
+            {
+                id: 31,
+                category: "Solar PV Systems",
+                q: "If the four identical PV cells (0.5 V, 2.0 A each) are connected in SERIES, what is the total voltage and power output? [Sheet 1 Q9]",
+                options: ["V_T = 2.0 V, P_T = 4.0 W", "V_T = 0.5 V, P_T = 4.0 W", "V_T = 2.0 V, P_T = 1.0 W", "V_T = 0.5 V, P_T = 8.0 W"],
+                ans: 0,
+                exp: "In series: Voltages add up V_T = 4 × 0.5 V = 2.0 V. Current remains I_T = 2.0 A. Total Power P_T = 2.0 V × 2.0 A = 4.0 W."
+            },
+            {
+                id: 32,
+                category: "Solar PV Systems",
+                q: "You need an array supplying min 12 V and min 6 A using cells rated at 0.5 V and 2.0 A ($0.50/cell). What is the min cell count and cost? [Sheet 1 Q10]",
+                options: ["24 cells ($12)", "72 cells ($36)", "36 cells ($18)", "48 cells ($24)"],
+                ans: 1,
+                exp: "Series cells per string N_s = 12 V / 0.5 V = 24 cells. Parallel strings N_p = 6 A / 2.0 A = 3 strings. Total cells = 24 × 3 = 72 cells. Total cost = 72 × $0.50 = $36.00."
+            },
+            {
+                id: 33,
+                category: "Solar PV Systems",
+                q: "Can the array cost in Problem 32 be reduced if the target is changed to a min power of 72 W while maintaining min 12 V? [Sheet 1 Q11]",
+                options: [
+                    "No, because 72 cells of 1 W each are strictly required to produce 72 W, so min cost remains $36.00",
+                    "Yes, cost reduces to $18",
+                    "No, cost increases to $100",
+                    "Insufficient data"
+                ],
+                ans: 0,
+                exp: "Single cell power = 0.5 V × 2.0 A = 1 W. To produce 72 W, exactly 72 cells are needed. Since 24 × 3 = 72 cells, the cost cannot be reduced below $36.00."
+            },
+            {
+                id: 34,
+                category: "Solar PV Systems",
+                q: "Calculate cell efficiency at T = 30°C if T_ref = 25°C, reference efficiency η_ref = 0.15, and temperature coefficient β_ref = 0.004 K⁻¹. [Sheet 1 Q12]",
+                options: ["14.7%", "15.3%", "12.0%", "18.0%"],
+                ans: 0,
+                exp: "η(T) = η_ref × [1 - β_ref × (T - T_ref)] = 0.15 × [1 - 0.004 × (30 - 25)] = 0.15 × [1 - 0.02] = 0.15 × 0.98 = 0.147 = 14.7%."
+            },
+            {
+                id: 35,
+                category: "Solar PV Systems",
+                q: "What is the primary effect of an increase in operating cell temperature on the I-V curve of a PV cell?",
+                options: [
+                    "Significant drop in Open-Circuit Voltage (Voc) and efficiency",
+                    "Dramatic increase in Short-Circuit Current (Isc)",
+                    "Increase in Voc",
+                    "No effect on electrical performance"
+                ],
+                ans: 0,
+                exp: "Elevated temperatures shrink the semiconductor bandgap, causing a severe drop in Open-Circuit Voltage (Voc) and overall efficiency."
+            },
+            {
+                id: 36,
+                category: "Solar PV Systems",
+                q: "How does increasing solar irradiance (G) affect a PV cell's I-V characteristics?",
+                options: [
+                    "Linear increase in Short-Circuit Current (Isc)",
+                    "Decrease in Isc",
+                    "Linear drop in Voc",
+                    "Exponential increase in temperature"
+                ],
+                ans: 0,
+                exp: "Short-circuit current Isc is directly proportional to solar irradiance (G)."
+            },
+            {
+                id: 37,
+                category: "Solar PV Systems",
+                q: "Three identical PV panels (12 V / 5 A each) are connected in PARALLEL. What is the system output? [Sheet 1 Q13 Config 1]",
+                options: ["36 V / 5 A", "12 V / 15 A", "36 V / 15 A", "12 V / 5 A"],
+                ans: 1,
+                exp: "Parallel grouping maintains system voltage at 12 V and adds currents: 5 A + 5 A + 5 A = 15 A."
+            },
+            {
+                id: 38,
+                category: "Solar PV Systems",
+                q: "A PV array has 2 parallel strings, each string containing 2 panels in series (panel rating: 12 V / 5 A). Calculate array output. [Sheet 1 Q13 Config 2]",
+                options: ["24 V / 10 A", "12 V / 10 A", "24 V / 5 A", "48 V / 20 A"],
+                ans: 0,
+                exp: "Each string voltage = 12 V + 12 V = 24 V. Each string current = 5 A. Connecting 2 strings in parallel gives 24 V total and 5 A + 5 A = 10 A total."
+            },
+            {
+                id: 39,
+                category: "Solar PV Systems",
+                q: "Two parallel strings are connected: String 1 gives (12 V / 5 A) and String 2 gives (12 V / 4.5 A). What is total output? [Sheet 1 Q13 Config 2b]",
+                options: ["12 V / 9.5 A", "24 V / 4.5 A", "12 V / 4.5 A", "24 V / 9.5 A"],
+                ans: 0,
+                exp: "In parallel connections, currents add up: I_T = 5.0 A + 4.5 A = 9.5 A at 12 V."
+            },
+            {
+                id: 40,
+                category: "Solar PV Systems",
+                q: "Four parallel PV modules rated (17V/8A), (19V/8A), (19V/8A), and (19V/8A) are connected. What is array output voltage and current? [Sheet 1 Q13 Config 4]",
+                options: ["17 V / 32 A", "74 V / 8 A", "19 V / 32 A", "17 V / 8 A"],
+                ans: 0,
+                exp: "In parallel, total current I_T = 8 × 4 = 32 A. System operating voltage is limited by the minimum module voltage (17 V) to prevent reverse bias."
+            },
+            {
+                id: 41,
+                category: "Solar PV Systems",
+                q: "When non-identical PV modules are connected in SERIES, string current is limited by:",
+                options: ["The highest current module", "The average current", "The lowest current module (Mismatch loss)", "The sum of all currents"],
+                ans: 2,
+                exp: "Series string current is bottlenecked by the lowest current module, creating Mismatch Losses unless bypass diodes are used."
+            },
+            {
+                id: 42,
+                category: "Solar PV Systems",
+                q: "What component converts DC power from PV panels into AC power for household appliances?",
+                options: ["Charge Controller", "Inverter", "Transformer", "DC-DC Converter"],
+                ans: 1,
+                exp: "An Inverter converts Direct Current (DC) from solar arrays or batteries into Alternating Current (AC)."
+            },
+            {
+                id: 43,
+                category: "Solar PV Systems",
+                q: "The smallest individual semiconductor unit in a solar array producing 1 to 2 Watts is called a:",
+                options: ["PV Array", "PV Module", "PV Cell", "Solar String"],
+                ans: 2,
+                exp: "A PV Cell is the elementary semiconductor building block."
+            },
+            {
+                id: 44,
+                category: "Solar PV Systems",
+                q: "Egypt's largest grid-connected solar photovoltaic complex is located in:",
+                options: ["Zafarana", "Benban (Aswan)", "Gabal El Zayt", "Kurimat"],
+                ans: 1,
+                exp: "Benban Solar Park in Aswan is one of the world's largest utility-scale PV installations."
+            },
+            {
+                id: 45,
+                category: "Solar PV Systems",
+                q: "Egypt's grid-connected Concentrated Solar Power (CSP) hybrid plant is located in:",
+                options: ["Siwa", "Halayeb", "Kurimat", "Farafra"],
+                ans: 2,
+                exp: "Kurimat features a Concentrated Solar Power (CSP) parabolic trough system integrated with a combined cycle power plant."
+            },
+            {
+                id: 46,
+                category: "Solar PV Systems",
+                q: "What is a major limitation of PV solar power compared to fossil fuel generators?",
+                options: [
+                    "High carbon dioxide emissions",
+                    "Intermittency, land area requirement, and zero generation at night",
+                    "Heavy water consumption during operation",
+                    "Noise pollution"
+                ],
+                ans: 1,
+                exp: "PV solar energy is intermittent, weather-dependent, requires land footprint, and produces no power without sunlight."
+            },
+            {
+                id: 47,
+                category: "Solar PV Systems",
+                q: "A PV module consists of 36 series-connected cells. If single cell Voc = 0.6 V, what is module Voc?",
+                options: ["0.6 V", "21.6 V", "12.0 V", "36.0 V"],
+                ans: 1,
+                exp: "Voc_module = N_series × Voc_cell = 36 × 0.6 V = 21.6 V."
+            },
+            {
+                id: 48,
+                category: "Solar PV Systems",
+                q: "Short-circuit current (Isc) of a PV module can be increased by:",
+                options: [
+                    "Connecting more cells in series",
+                    "Connecting more cell strings in parallel",
+                    "Increasing module frame thickness",
+                    "Lowering sunlight intensity"
+                ],
+                ans: 1,
+                exp: "Current scales with parallel string connections: Isc_array = N_parallel × Isc_string."
+            },
+            {
+                id: 49,
+                category: "Solar PV Systems",
+                q: "A basic silicon p-n junction PV cell generates electricity due to:",
+                options: ["Thermoelectric heating", "Photoelectric effect creating electron-hole pairs", "Chemical oxidation", "Nuclear fission"],
+                ans: 1,
+                exp: "Absorbed photons excite electrons across the semiconductor bandgap, generating electron-hole pairs separated by the p-n junction electric field."
+            },
+            {
+                id: 50,
+                category: "Solar PV Systems",
+                q: "If a PV panel has an area of 1.5 m² and an efficiency of 15%, what is its power output under G = 1000 W/m²?",
+                options: ["150 W", "225 W", "300 W", "100 W"],
+                ans: 1,
+                exp: "P_out = η × G × A = 0.15 × 1000 W/m² × 1.5 m² = 225 W."
+            },
+
+            // TEST 3: Q51 - Q75 (Wind & Wave Energy)
+            {
+                id: 51,
+                category: "Wind & Wave Energy",
+                q: "Wind energy on Earth's surface is primarily driven by:",
+                options: [
+                    "Ocean tides and moon gravity",
+                    "Earth rotation and uneven solar heating of the atmosphere causing convection currents",
+                    "Industrial exhaust fumes",
+                    "Volcanic eruptions"
+                ],
+                ans: 1,
+                exp: "Atmospheric wind is caused by solar heating variations creating pressure differentials combined with Coriolis forces from Earth's rotation."
+            },
+            {
+                id: 52,
+                category: "Wind & Wave Energy",
+                q: "A wind turbine with D = 12 m operates at average speed V = 8 m/s (air density ρ = 1.225 kg/m³, Cp = 0.4). Calculate power output. [Sheet 1 Q15]",
+                options: ["14.19 kW", "35.48 kW", "7.08 kW", "28.34 kW"],
+                ans: 0,
+                exp: "Rotor Area A = π/4 × (12)² = 113.1 m². Wind Power P_in = 0.5 × 1.225 × 113.1 × 8³ = 35,483 W = 35.48 kW. Electrical Power P_out = Cp × P_in = 0.4 × 35.48 kW = 14.19 kW."
+            },
+            {
+                id: 53,
+                category: "Wind & Wave Energy",
+                q: "A wind turbine (D = 40 m) produces 700 kW at V = 14 m/s (ρ = 1.225 kg/m³). Calculate total system efficiency. [Sheet 1 Q16]",
+                options: ["33.14%", "42.50%", "59.30%", "25.00%"],
+                ans: 0,
+                exp: "A = π/4 × 40² = 1256.64 m². P_inlet = 0.5 × 1.225 × 1256.64 × 14³ = 2,112,130 W = 2112.13 kW. Efficiency η = P_out / P_inlet = 700 / 2112.13 = 33.14%."
+            },
+            {
+                id: 54,
+                category: "Wind & Wave Energy",
+                q: "In a wind farm site (V = 9.6 m/s, air density ρ = 1.225 kg/m³), estimate wind power density (W/m²). [Sheet 1 Q17]",
+                options: ["541.9 W/m²", "1083.6 W/m²", "270.9 W/m²", "450.0 W/m²"],
+                ans: 0,
+                exp: "Wind Power Density = P / A = 0.5 × ρ × V³ = 0.5 × 1.225 × (9.6)³ = 541.9 W/m²."
+            },
+            {
+                id: 55,
+                category: "Wind & Wave Energy",
+                q: "A wind turbine (D = 50 m) produces 375 kW at V = 10 m/s (ρ = 1.20 kg/m³). Combined gearbox/generator efficiency is 90%. Calculate turbine rotor efficiency Cp. [Sheet 1 Q18]",
+                options: ["35.36%", "39.30%", "45.00%", "59.30%"],
+                ans: 0,
+                exp: "A = π/4 × 50² = 1963.5 m². Total wind power P_wind = 0.5 × 1.20 × 1963.5 × 10³ = 1,178.1 kW. Mechanical power output P_mech = 375 kW / 0.90 = 416.67 kW. Cp = 416.67 / 1178.1 = 0.3536 = 35.36%."
+            },
+            {
+                id: 56,
+                category: "Wind & Wave Energy",
+                q: "What is the maximum theoretical electric power output for the turbine in Question 55 under Betz limit (Cp_max = 16/27)? [Sheet 1 Q18c]",
+                options: ["628.3 kW", "698.1 kW", "1060 kW", "375 kW"],
+                ans: 0,
+                exp: "Max mechanical power = P_wind × (16/27) = 1178.1 kW × 0.5926 = 698.1 kW. Max electrical power = 698.1 kW × 0.90 = 628.3 kW."
+            },
+            {
+                id: 57,
+                category: "Wind & Wave Energy",
+                q: "The theoretical maximum power coefficient for any wind turbine (Betz Limit) is:",
+                options: ["50.0%", "16/27 (~59.3%)", "75.0%", "100.0%"],
+                ans: 1,
+                exp: "Albert Betz established that no wind turbine can capture more than 16/27 (59.3%) of kinetic energy in wind."
+            },
+            {
+                id: 58,
+                category: "Wind & Wave Energy",
+                q: "The mechanism responsible for adjusting blade pitch angle to control rotational speed is called:",
+                options: ["Yaw drive", "Pitch control system", "Anemometer", "Nacelle"],
+                ans: 1,
+                exp: "Pitch control rotates blades along their longitudinal axis to optimize power or protect against overspeed."
+            },
+            {
+                id: 59,
+                category: "Wind & Wave Energy",
+                q: "Which instrument mounted on top of a wind turbine nacelle measures wind speed?",
+                options: ["Anemometer", "Wind Vane", "Tachometer", "Barometer"],
+                ans: 0,
+                exp: "An Anemometer measures wind speed to provide data to the turbine controller."
+            },
+            {
+                id: 60,
+                category: "Wind & Wave Energy",
+                q: "Which device senses wind direction to align the turbine rotor into the wind?",
+                options: ["Anemometer", "Wind Vane", "Gearbox", "Pitch Motor"],
+                ans: 1,
+                exp: "A Wind Vane measures wind direction to command the yaw drive system."
+            },
+
+            // TEST 3 Continued: Q61-Q75
+            {
+                id: 61,
+                category: "Wind & Wave Energy",
+                q: "Vertical Axis Wind Turbines (VAWTs) offer what operational advantage over Horizontal Axis Wind Turbines (HAWTs)?",
+                options: [
+                    "Significantly higher efficiency",
+                    "Omnidirectional operation without requiring yaw mechanisms",
+                    "Lighter and longer blades",
+                    "Zero noise emission"
+                ],
+                ans: 1,
+                exp: "VAWTs accept wind from any 360° direction without needing a yaw orientation motor."
+            },
+            {
+                id: 62,
+                category: "Wind & Wave Energy",
+                q: "Which VAWT design features curved blades resembling an egg-beater?",
+                options: ["Savonius rotor", "Darrieus rotor", "Cup anemometer", "Horizontal 3-blade"],
+                ans: 1,
+                exp: "The Darrieus VAWT uses curved aerofoil blades forming an egg-beater shape."
+            },
+            {
+                id: 63,
+                category: "Wind & Wave Energy",
+                q: "Three-bladed HAWTs are preferred for utility-scale power generation because:",
+                options: [
+                    "High starting torque at low speeds",
+                    "Optimal balance between aerodynamic efficiency, structural stability, and smooth rotation",
+                    "They do not require towers",
+                    "Low cost per blade"
+                ],
+                ans: 1,
+                exp: "3-blade HAWTs provide smooth rotational dynamics and high efficiency while minimizing gyroscopic loads."
+            },
+            {
+                id: 64,
+                category: "Wind & Wave Energy",
+                q: "Multi-blade American windmill turbines are primarily designed for:",
+                options: [
+                    "Utility-scale electricity generation",
+                    "High starting torque at low wind speeds for water pumping",
+                    "Offshore deep sea power",
+                    "High-speed rotation"
+                ],
+                ans: 1,
+                exp: "Multi-blade windmills develop high torque at low rotational speeds, ideal for mechanical water pumping."
+            },
+            {
+                id: 65,
+                category: "Wind & Wave Energy",
+                q: "The wind speed at which a wind turbine begins generating net power is called:",
+                options: ["Cut-in speed", "Rated speed", "Cut-out speed", "Stall speed"],
+                ans: 0,
+                exp: "Cut-in speed (typically 3 to 4 m/s) is the threshold wind speed where turbine generation starts."
+            },
+            {
+                id: 66,
+                category: "Wind & Wave Energy",
+                q: "The high wind speed limit at which a turbine shuts down to prevent structural damage is:",
+                options: ["Cut-in speed", "Rated speed", "Cut-out speed", "Nominal speed"],
+                ans: 2,
+                exp: "Cut-out speed (typically 25 m/s) triggers automatic braking to protect the structure."
+            },
+            {
+                id: 67,
+                category: "Wind & Wave Energy",
+                q: "Tip Speed Ratio (TSR) is defined as the ratio of:",
+                options: [
+                    "Generator speed to gearbox speed",
+                    "Tangential speed of blade tip to actual wind speed",
+                    "Tower height to rotor diameter",
+                    "Cut-in speed to rated speed"
+                ],
+                ans: 1,
+                exp: "TSR (λ) = (Rotational speed × Rotor radius) / Wind velocity."
+            },
+            {
+                id: 68,
+                category: "Wind & Wave Energy",
+                q: "Major Egyptian commercial wind power projects are located in:",
+                options: ["Benban", "Gabal El Zayt and Zafarana", "Siwa", "Farafra"],
+                ans: 1,
+                exp: "Egypt's large-scale wind farms are situated along the Gulf of Suez at Gabal El Zayt, Zafarana, and Ras Ghareb."
+            },
+            {
+                id: 69,
+                category: "Wind & Wave Energy",
+                q: "The housing enclosure atop the tower containing gearbox, generator, and brakes is called the:",
+                options: ["Hub", "Nacelle", "Rotor", "Foundation"],
+                ans: 1,
+                exp: "The Nacelle houses the main drive shaft, gearbox, generator, controller, and brake assembly."
+            },
+            {
+                id: 70,
+                category: "Wind & Wave Energy",
+                q: "If wind velocity V is doubled to 2V, theoretical power available in the wind increases by a factor of:",
+                options: ["2", "4", "8", "16"],
+                ans: 2,
+                exp: "Wind power is proportional to V³. Therefore, (2)³ = 8 times increase."
+            },
+            {
+                id: 71,
+                category: "Wind & Wave Energy",
+                q: "If turbine rotor diameter D is doubled to 2D at constant wind speed, power output increases by:",
+                options: ["2", "4", "8", "16"],
+                ans: 1,
+                exp: "Power is proportional to Area A = (π/4)D². Doubling D quadruples area (2² = 4 times)."
+            },
+            {
+                id: 72,
+                category: "Wind & Wave Energy",
+                q: "In an Upwind HAWT configuration, rotor blades are located:",
+                options: ["Downwind of the tower", "Upwind (in front) of the tower facing incoming wind", "Inside the tower structure", "Underground"],
+                ans: 1,
+                exp: "Upwind turbines position the rotor facing into the wind in front of the tower to avoid tower shadow turbulence."
+            },
+            {
+                id: 73,
+                category: "Wind & Wave Energy",
+                q: "Savonius VAWT rotors operate predominantly on the principle of:",
+                options: ["Aerodynamic Lift", "Aerodynamic Drag", "Nuclear reaction", "Thermal expansion"],
+                ans: 1,
+                exp: "Savonius rotors are drag-driven S-shaped cup devices."
+            },
+            {
+                id: 74,
+                category: "Wind & Wave Energy",
+                q: "Standard atmospheric sea-level air density used in wind turbine power calculations is:",
+                options: ["1.000 kg/m³", "1.225 kg/m³", "2.500 kg/m³", "1000 kg/m³"],
+                ans: 1,
+                exp: "Standard air density ρ = 1.225 kg/m³ at 15°C and 1 atm pressure."
+            },
+            {
+                id: 75,
+                category: "Wind & Wave Energy",
+                q: "The function of the gearbox in a conventional HAWT drivetrain is to:",
+                options: [
+                    "Reduce high generator RPM to slow rotor rotation",
+                    "Step up low rotor RPM to high generator RPM required for electrical generation",
+                    "Change AC to DC",
+                    "Store mechanical energy"
+                ],
+                ans: 1,
+                exp: "The gearbox increases low main-shaft speeds (10-20 RPM) to high generator speeds (1200-1800 RPM)."
+            },
+
+            // TEST 4: Q76 - Q100 (Ocean Wave, Hydro, Geothermal, Biomass & Nuclear)
+            {
+                id: 76,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "An ocean wave has vertical peak-to-trough height H = 4.6 m, wavelength λ = 8.6 m, and period T = 6.2 s. Calculate wave power density (W/m). [Sheet 1 Q19]",
+                options: ["14.1 kW/m", "28.2 kW/m", "5.8 kW/m", "100 kW/m"],
+                ans: 0,
+                exp: "Wave amplitude a = H / 2 = 4.6 / 2 = 2.3 m. Power density formula: P_wave = (ρ × g² × a² / 8π) × √(2π λ / g). Substituting ρ = 1000 kg/m³, g = 9.81 m/s², a = 2.3 m, λ = 8.6 m yields P_wave ≈ 14.1 kW/m width."
+            },
+            {
+                id: 77,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "A wave turbine (D = 2 m, Cp = 0.4, η_mech = 0.85, η_gen = 0.95) operates in the wave field from Q76. Calculate electrical power output. [Sheet 1 Q20]",
+                options: ["9.1 kW", "18.2 kW", "4.5 kW", "28.2 kW"],
+                ans: 0,
+                exp: "Total wave power captured = P_wave × D = 14.1 kW/m × 2 m = 28.2 kW. Electric output = 28.2 × 0.4 × 0.85 × 0.95 = 9.1 kW."
+            },
+            {
+                id: 78,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Hydroelectric power plants supply approximately what fraction of total global electricity generation?",
+                options: ["5%", "20%", "50%", "80%"],
+                ans: 1,
+                exp: "Hydroelectricity accounts for roughly 16% to 20% of world electricity generation."
+            },
+            {
+                id: 79,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Major environmental concerns associated with hydroelectric dams include:",
+                options: [
+                    "Radioactive fallout",
+                    "Ecosystem disruption, fish migration blockage, and downstream water quality degradation",
+                    "Heavy greenhouse gas emissions during operation",
+                    "High noise pollution"
+                ],
+                ans: 1,
+                exp: "Dams flood habitats, alter river ecosystems, block migratory fish, and affect downstream silt deposition."
+            },
+            {
+                id: 80,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Geothermal energy production is most abundant in countries located near volcanic fault lines such as:",
+                options: ["Egypt and Sudan", "Iceland and New Zealand", "Saudi Arabia and UAE", "Brazil and Argentina"],
+                ans: 1,
+                exp: "Iceland, New Zealand, and the Pacific Ring of Fire possess rich high-enthalpy geothermal reservoirs."
+            },
+            {
+                id: 81,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "A major environmental drawback of geothermal energy extraction is:",
+                options: [
+                    "Dense smoke emissions",
+                    "Possible release of harmful underground gases (H2S) and dissolved mineral salts",
+                    "Noise pollution",
+                    "High coal consumption"
+                ],
+                ans: 1,
+                exp: "Geothermal fluids can release hydrogen sulfide (H2S), ammonia, and heavy dissolved minerals if uncontained."
+            },
+            {
+                id: 82,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Tidal power plants generate electricity primarily from energy supplied by:",
+                options: [
+                    "Underground magma heat",
+                    "Gravitational pull of the Moon and Sun combined with Earth's rotation",
+                    "Biomass fermentation",
+                    "Nuclear fission"
+                ],
+                ans: 1,
+                exp: "Tides are periodic ocean movements caused by gravitational interactions between Earth, Moon, and Sun."
+            },
+            {
+                id: 83,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "What is a main operational limitation of tidal barrage energy generation?",
+                options: [
+                    "High fuel costs",
+                    "Tides occur only twice daily (cyclic generation limited to tidal windows)",
+                    "High CO2 emissions",
+                    "Explosion risk"
+                ],
+                ans: 1,
+                exp: "Tidal generation is intermittent and constrained to specific 6-hour filling/emptying windows twice daily."
+            },
+            {
+                id: 84,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Biomass energy refers to energy extracted from:",
+                options: [
+                    "Uranium isotope decay",
+                    "Organic matter such as wood, agricultural residues, animal waste, and energy crops",
+                    "Sea waves",
+                    "Atmospheric wind"
+                ],
+                ans: 1,
+                exp: "Biomass includes plant products, organic waste, wood fuel, and agricultural byproduct streams."
+            },
+            {
+                id: 85,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Sugarcane crops are widely cultivated to produce bio-fuel through fermentation into:",
+                options: ["Crude oil", "Bio-ethanol (alcohol)", "Neon gas", "Bituminous coal"],
+                ans: 1,
+                exp: "Fermenting sugarcane juice produces Bio-ethanol used as transportation fuel."
+            },
+            {
+                id: 86,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "The main fissile fuel isotope used in commercial nuclear power reactors is:",
+                options: ["Carbon-12", "Uranium-235 (U-235)", "Coal", "Pure Hydrogen"],
+                ans: 1,
+                exp: "Uranium enriched in the isotope U-235 undergoes controlled nuclear fission inside power reactors."
+            },
+            {
+                id: 87,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Nuclear power currently supplies approximately what percentage of global electricity?",
+                options: ["1%", "11%", "40%", "75%"],
+                ans: 1,
+                exp: "Nuclear power stations provide about 10% to 11% of total world electricity."
+            },
+            {
+                id: 88,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Nuclear energy is classified as non-renewable because:",
+                options: [
+                    "It produces carbon dioxide",
+                    "Uranium ore reserves in Earth's crust are finite and non-replenishable",
+                    "It relies on solar heat",
+                    "It cannot generate electricity"
+                ],
+                ans: 1,
+                exp: "Uranium deposits are finite geological mineral reserves, making nuclear energy non-renewable."
+            },
+            {
+                id: 89,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "A primary operational benefit of nuclear power plants during normal operation is:",
+                options: [
+                    "Low plant construction cost",
+                    "Zero greenhouse gas emissions and ultra-high energy density per kg fuel",
+                    "Self-eliminating waste",
+                    "No requirement for cooling water"
+                ],
+                ans: 1,
+                exp: "1 kg of U-235 releases millions of times more energy than 1 kg of fossil fuel without emitting greenhouse gases."
+            },
+            {
+                id: 90,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "The most persistent environmental challenge associated with nuclear power is:",
+                options: [
+                    "Acid rain",
+                    "Long-term management and storage of radioactive waste",
+                    "Ozone depletion",
+                    "Noise pollution"
+                ],
+                ans: 1,
+                exp: "Spent nuclear fuel remains hazardous and radioactive for thousands of years, requiring secure deep geological repositories."
+            },
+
+            // TEST 4 Continued: Q91-Q100
+            {
+                id: 91,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Which energy resource availability fluctuates seasonally with crop harvesting cycles?",
+                options: ["Nuclear energy", "Agricultural biomass residues", "Geothermal energy", "Coal"],
+                ans: 1,
+                exp: "Crop residues (rice straw, bagasse) depend on seasonal harvest availability."
+            },
+            {
+                id: 92,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Geothermal steam plants tap into underground hot water reservoirs known as:",
+                options: ["Hydrothermal resources", "Photovoltaic effect", "Wind convection", "Nuclear fission"],
+                ans: 0,
+                exp: "Hydrothermal reservoirs contain trapped subterranean water/steam heated by hot rock."
+            },
+            {
+                id: 93,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "In an Oscillating Water Column (OWC) wave device, the turbine is driven by:",
+                options: [
+                    "Direct wave impact on metal blades",
+                    "Bi-directional airflow forced up and down by rising and falling water levels",
+                    "Steam",
+                    "Oil hydraulic pumps only"
+                ],
+                ans: 1,
+                exp: "The trapped air column above the wave is compressed and decompressed, driving a bi-directional air turbine (Wells turbine)."
+            },
+            {
+                id: 94,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Hydroelectric dam reservoirs can cause environmental changes downstream such as:",
+                options: [
+                    "Radioactive pollution",
+                    "Altered water temperature, reduced sediment flow, and fish ecosystem disruption",
+                    "Atmospheric oxygen depletion",
+                    "CO2 increase"
+                ],
+                ans: 1,
+                exp: "Trapping sediments behind dams starves downstream floodplains and changes aquatic temperature/ecology."
+            },
+            {
+                id: 95,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Which renewable energy resources do NOT depend on solar radiation?",
+                options: ["Wind power", "Geothermal energy and Tidal energy", "Biomass energy", "Hydroelectric energy"],
+                ans: 1,
+                exp: "Geothermal originates from Earth's internal heat; Tidal originates from lunar/solar gravity. All others are solar-driven."
+            },
+            {
+                id: 96,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "In a hydroelectric plant, water potential energy in the reservoir is first converted into:",
+                options: ["Chemical energy", "Kinetic energy of water in the penstock", "Light energy", "Nuclear energy"],
+                ans: 1,
+                exp: "Water flowing down penstocks converts potential energy (mgh) into high-velocity kinetic energy."
+            },
+            {
+                id: 97,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Direct combustion of raw biomass fuel produces environmental pollutants such as:",
+                options: ["Helium", "Particulate matter (smoke), CO, and CO2", "Uranium isotopes", "Pure nitrogen"],
+                ans: 1,
+                exp: "Burning raw biomass releases particulate smoke, carbon monoxide, and greenhouse gases."
+            },
+            {
+                id: 98,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Ocean marine energy systems exploit two primary hydro mechanical resources:",
+                options: ["Waves and Tides", "Fission and Fusion", "Silicon and Copper", "Coal and Oil"],
+                ans: 0,
+                exp: "Marine energy conversion focuses on ocean waves and tidal currents/barrages."
+            },
+            {
+                id: 99,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "In nuclear power plants, control rods made of boron or cadmium are used to:",
+                options: [
+                    "Heat the steam",
+                    "Absorb neutrons to regulate or halt the fission chain reaction",
+                    "Cool the condenser",
+                    "Filter radioactive gases"
+                ],
+                ans: 1,
+                exp: "Control rods absorb excess neutrons to control the nuclear fission rate inside the core."
+            },
+            {
+                id: 100,
+                category: "Geothermal, Biomass & Nuclear",
+                q: "Suitable topographic locations for hydroelectric dam construction require:",
+                options: [
+                    "Flat desert terrain",
+                    "Steep river valleys with high water head and large reservoir storage capacity",
+                    "Dry volcanic hills",
+                    "Open ocean waters"
+                ],
+                ans: 1,
+                exp: "High hydraulic elevation head (h) and high volume flow rate (Q) in steep valleys optimize hydro generation."
+            },
+
+            // TEST 5: Q101 - Q125 (IC Engines)
+            {
+                id: 101,
+                category: "IC Engines",
+                q: "An engine produces Brake Power BP = 36.8 kW at full load and requires Frictional Power FP = 7.36 kW. Calculate its mechanical efficiency at full load. [Sheet 2 Q7]",
+                options: ["83.33%", "80.00%", "75.00%", "90.00%"],
+                ans: 0,
+                exp: "Indicated Power IP = BP + FP = 36.8 + 7.36 = 44.16 kW. Mechanical Efficiency η_m = BP / IP = 36.8 / 44.16 = 0.8333 = 83.33%."
+            },
+            {
+                id: 102,
+                category: "IC Engines",
+                q: "For the engine in Q101 (BP_full = 36.8 kW, FP = 7.36 kW constant), calculate mechanical efficiency at HALF LOAD (50%) and QUARTER LOAD (25%). [Sheet 2 Q7]",
+                options: [
+                    "50% load: 71.43%, 25% load: 55.56%",
+                    "50% load: 40.00%, 25% load: 20.00%",
+                    "50% load: 80.00%, 25% load: 80.00%",
+                    "50% load: 60.00%, 25% load: 30.00%"
+                ],
+                ans: 0,
+                exp: "At 50% load: BP = 0.5 × 36.8 = 18.4 kW. IP = 18.4 + 7.36 = 25.76 kW. η_m = 18.4 / 25.76 = 71.43%. At 25% load: BP = 0.25 × 36.8 = 9.2 kW. IP = 9.2 + 7.36 = 16.56 kW. η_m = 9.2 / 16.56 = 55.56%."
+            },
+            {
+                id: 103,
+                category: "IC Engines",
+                q: "A 4-stroke CI engine develops BP = 368 kW, FP = 73.6 kW, fuel rate = 180 kg/h (CV = 42,000 kJ/kg). Calculate Indicated Power (IP) and mechanical efficiency. [Sheet 2 Q8]",
+                options: [
+                    "IP = 441.6 kW, η_m = 83.33%",
+                    "IP = 294.4 kW, η_m = 80.00%",
+                    "IP = 441.6 kW, η_m = 70.00%",
+                    "IP = 500.0 kW, η_m = 85.00%"
+                ],
+                ans: 0,
+                exp: "IP = BP + FP = 368 + 73.6 = 441.6 kW. Mechanical Efficiency η_m = BP / IP = 368 / 441.6 = 83.33%."
+            },
+            {
+                id: 104,
+                category: "IC Engines",
+                q: "For the engine in Q103, calculate Indicated Thermal Efficiency (η_ith) and Brake Thermal Efficiency (η_bth). [Sheet 2 Q8]",
+                options: [
+                    "η_ith = 21.03%, η_bth = 17.52%",
+                    "η_ith = 15.00%, η_bth = 12.00%",
+                    "η_ith = 50.00%, η_bth = 40.00%",
+                    "η_ith = 42.00%, η_bth = 35.00%"
+                ],
+                ans: 0,
+                exp: "Heat Input rate Q_in = (mf × CV) / 3600 = (180 × 42000) / 3600 = 2100 kW. Indicated thermal eff η_ith = IP / Q_in = 441.6 / 2100 = 21.03%. Brake thermal eff η_bth = BP / Q_in = 368 / 2100 = 17.52%."
+            },
+            {
+                id: 105,
+                category: "IC Engines",
+                q: "For the engine in Q103 (fuel rate = 180 kg/h), if Air-Fuel Ratio (AFR) is 20:1, calculate air consumption per hour (kg/h). [Sheet 2 Q8c]",
+                options: ["360 kg/h", "3600 kg/h", "1800 kg/h", "7200 kg/h"],
+                ans: 1,
+                exp: "AFR = m_air / m_fuel. Therefore, m_air = AFR × m_fuel = 20 × 180 kg/h = 3600 kg/h."
+            },
+            {
+                id: 106,
+                category: "IC Engines",
+                q: "An engine with 80% mechanical efficiency develops BP = 30 kW. Find IP and FP. If FP is constant, calculate mechanical efficiency at HALF LOAD (50%). [Sheet 2 Q9]",
+                options: [
+                    "IP = 37.5 kW, FP = 7.5 kW, η_m(50%) = 66.67%",
+                    "IP = 40 kW, FP = 10 kW, η_m(50%) = 50%",
+                    "IP = 37.5 kW, FP = 7.5 kW, η_m(50%) = 73.68%",
+                    "IP = 50 kW, FP = 20 kW, η_m(50%) = 60%"
+                ],
+                ans: 0,
+                exp: "IP = BP / η_m = 30 / 0.80 = 37.5 kW. FP = IP - BP = 37.5 - 30 = 7.5 kW. At 50% load: BP_50 = 0.5 × 30 = 15 kW. IP_50 = 15 + 7.5 = 22.5 kW. η_m(50%) = 15 / 22.5 = 66.67%."
+            },
+            {
+                id: 107,
+                category: "IC Engines",
+                q: "A four-stroke IC engine completes one full thermodynamic cycle in how many revolutions of the crankshaft?",
+                options: ["1 revolution (360°)", "2 revolutions (720°)", "4 revolutions (1440°)", "0.5 revolution"],
+                ans: 1,
+                exp: "A 4-stroke engine requires 4 piston strokes corresponding to 2 complete revolutions (720°) of the crankshaft."
+            },
+            {
+                id: 108,
+                category: "IC Engines",
+                q: "The camshaft rotational speed relative to the crankshaft rotational speed is:",
+                options: ["Double speed", "Same speed", "Half speed", "One quarter speed"],
+                ans: 2,
+                exp: "The camshaft rotates at exactly half crankshaft speed (1:2 ratio) to operate valves once every 2 crankshaft revolutions."
+            },
+            {
+                id: 109,
+                category: "IC Engines",
+                q: "During which stroke are both intake and exhaust valves closed while the piston moves upward toward TDC?",
+                options: ["Intake stroke", "Compression stroke", "Power stroke", "Exhaust stroke"],
+                ans: 1,
+                exp: "During the compression stroke, all valves seal the cylinder as the piston compresses the trapped air/fuel mixture."
+            },
+            {
+                id: 110,
+                category: "IC Engines",
+                q: "What is the fundamental difference in ignition mechanism between gasoline (SI) and diesel (CI) engines?",
+                options: [
+                    "Gasoline uses auto-ignition; Diesel uses spark plugs",
+                    "Gasoline uses electric spark plugs; Diesel uses auto-ignition via high compression heat",
+                    "Both use spark plugs",
+                    "Both use steam"
+                ],
+                ans: 1,
+                exp: "Spark Ignition (SI) gasoline engines ignite air-fuel mixture with a spark plug. Compression Ignition (CI) diesel engines ignite atomized diesel via high air compression temperature."
+            },
+            {
+                id: 111,
+                category: "IC Engines",
+                q: "The heavy rotating wheel mounted on the crankshaft to smooth out torque fluctuations and store rotational energy is the:",
+                options: ["Connecting rod", "Flywheel", "Piston ring", "Radiator"],
+                ans: 1,
+                exp: "The Flywheel stores kinetic energy during the power stroke and releases it during non-power strokes."
+            },
+            {
+                id: 112,
+                category: "IC Engines",
+                q: "The connecting rod converts the reciprocating linear motion of the piston into:",
+                options: ["Linear motion of valves", "Rotational motion of the crankshaft", "Air compression", "Cooling oil flow"],
+                ans: 1,
+                exp: "The connecting rod links the piston pin to the crankpin, translating reciprocating piston motion into rotary crank motion."
+            },
+            {
+                id: 113,
+                category: "IC Engines",
+                q: "TDC in internal combustion engine terminology stands for:",
+                options: ["Total Diesel Capacity", "Top Dead Center", "Thermal Displacement Control", "Time Drive Cycle"],
+                ans: 1,
+                exp: "Top Dead Center (TDC) is the topmost position of the piston inside the cylinder."
+            },
+            {
+                id: 114,
+                category: "IC Engines",
+                q: "BDC in internal combustion engine terminology stands for:",
+                options: ["Bottom Dead Center", "Brake Diesel Consumption", "Battery Direct Current", "Boiler Discharge Pressure"],
+                ans: 0,
+                exp: "Bottom Dead Center (BDC) is the lowest position of the piston inside the cylinder."
+            },
+            {
+                id: 115,
+                category: "IC Engines",
+                q: "Piston rings mounted on the piston body serve to:",
+                options: [
+                    "Rotate the piston",
+                    "Seal the clearance gap between piston and cylinder wall to prevent gas leakage",
+                    "Generate ignition sparks",
+                    "Cool exhaust gases"
+                ],
+                ans: 1,
+                exp: "Piston compression and oil rings maintain gas-tight sealing and scrape excess lubricating oil."
+            },
+
+            // TEST 5 Continued: Q116-Q125
+            {
+                id: 116,
+                category: "IC Engines",
+                q: "An engine produces BP = 45 kW with FP = 5 kW. Its mechanical efficiency is:",
+                options: ["90%", "80%", "10%", "75%"],
+                ans: 0,
+                exp: "IP = BP + FP = 45 + 5 = 50 kW. Mechanical Efficiency = 45 / 50 = 90%."
+            },
+            {
+                id: 117,
+                category: "IC Engines",
+                q: "If Brake Thermal Efficiency η_bth = 30%, fuel heating value CV = 40,000 kJ/kg, and BP = 100 kW, calculate hourly fuel consumption mf (kg/h).",
+                options: ["30 kg/h", "12 kg/h", "100 kg/h", "60 kg/h"],
+                ans: 0,
+                exp: "mf (kg/h) = (BP × 3600) / (η_bth × CV) = (100 × 3600) / (0.30 × 40000) = 360,000 / 12,000 = 30 kg/h."
+            },
+            {
+                id: 118,
+                category: "IC Engines",
+                q: "In a Fuel-Cell Hybrid Electric Vehicle, electric current is produced by reacting hydrogen fuel with:",
+                options: ["Carbon dioxide", "Oxygen from atmospheric air", "Nitrogen", "Uranium"],
+                ans: 1,
+                exp: "Fuel cell stacks combine hydrogen fuel with atmospheric oxygen to produce electricity and pure water."
+            },
+            {
+                id: 119,
+                category: "IC Engines",
+                q: "In a 4-stroke IC engine, combusted exhaust gases are expelled during the:",
+                options: ["Intake stroke", "Compression stroke", "Power stroke", "Exhaust stroke"],
+                ans: 3,
+                exp: "During the exhaust stroke, the exhaust valve opens and the piston ascends from BDC to TDC pushing gases out."
+            },
+            {
+                id: 120,
+                category: "IC Engines",
+                q: "An engine where gasoline and air are mixed prior to entering the cylinder is a:",
+                options: ["Spark Ignition (SI) Gasoline Engine", "Compression Ignition (CI) Diesel Engine", "Gas Turbine", "Nuclear Reactor"],
+                ans: 0,
+                exp: "Conventional SI engines mix fuel and air in port injectors/carburetors prior to cylinder intake."
+            },
+            {
+                id: 121,
+                category: "IC Engines",
+                q: "The crankcase sump located at the base of the engine holds:",
+                options: ["Combustion gases", "Engine lubricating oil", "Cooling water only", "Fuel gas"],
+                ans: 1,
+                exp: "The sump/oil pan acts as a reservoir for engine lubricating oil."
+            },
+            {
+                id: 122,
+                category: "IC Engines",
+                q: "Frictional Power FP in IC engine analysis is calculated from:",
+                options: ["FP = IP × BP", "FP = IP - BP", "FP = BP / IP", "FP = IP + BP"],
+                ans: 1,
+                exp: "FP = IP - BP."
+            },
+            {
+                id: 123,
+                category: "IC Engines",
+                q: "When an engine operates at reduced partial loads (e.g. 50% load), its mechanical efficiency:",
+                options: ["Increases", "Decreases", "Stays constant", "Reaches 100%"],
+                ans: 1,
+                exp: "Since FP remains nearly constant, it forms a larger percentage of total IP at low loads, reducing mechanical efficiency."
+            },
+            {
+                id: 124,
+                category: "IC Engines",
+                q: "The ONLY stroke in a 4-stroke cycle that delivers net positive work to the crankshaft is the:",
+                options: ["Intake stroke", "Compression stroke", "Power (Expansion) stroke", "Exhaust stroke"],
+                ans: 2,
+                exp: "High-pressure expanding combustion gases do positive work on the piston during the Power Stroke."
+            },
+            {
+                id: 125,
+                category: "IC Engines",
+                q: "The DC-DC converter in a Battery Electric Vehicle (BEV) serves to:",
+                options: [
+                    "Convert gasoline to electricity",
+                    "Step down high-voltage traction battery power to low-voltage 12V auxiliary power",
+                    "Drive the pistons",
+                    "Measure wind speed"
+                ],
+                ans: 1,
+                exp: "The DC-DC converter steps down ~400V traction battery voltage to 12V DC for vehicle electronics/lights."
+            },
+
+            // TEST 6: Q126 - Q150 (Refrigeration & Power Plants)
+            {
+                id: 126,
+                category: "Refrigeration & Power Plants",
+                q: "A steam power plant adds 1 MW in boiler, rejects 0.58 MW in condenser, pump work is 0.02 MW, generator efficiency = 0.95. Calculate thermal and overall efficiency. [Sheet 2 Q1]",
+                options: [
+                    "η_thermal = 40.0%, η_overall = 38.0%",
+                    "η_thermal = 42.0%, η_overall = 39.9%",
+                    "η_thermal = 50.0%, η_overall = 45.0%",
+                    "η_thermal = 30.0%, η_overall = 25.0%"
+                ],
+                ans: 0,
+                exp: "Turbine Work W_turb = Q_in - Q_out = 1.0 - 0.58 = 0.42 MW. Net Mechanical Work W_net = W_turb - W_pump = 0.42 - 0.02 = 0.40 MW. Cycle Thermal Eff η_thermal = W_net / Q_in = 0.40 / 1.0 = 40.0%. Overall Eff η_overall = η_thermal × η_gen = 0.40 × 0.95 = 38.0%."
+            },
+            {
+                id: 127,
+                category: "Refrigeration & Power Plants",
+                q: "A steam plant has fuel rate = 50 kg/h (CV = 44,000 kJ/kg), pump power = 2 kW, overall efficiency = 24%. Calculate net electric power output. [Sheet 2 Q2]",
+                options: ["146.67 kW", "148.67 kW", "200.0 kW", "611.1 kW"],
+                ans: 0,
+                exp: "Fuel Energy Input rate Q_in = (50 × 44000) / 3600 = 611.11 kW. Net Electric Power = η_overall × Q_in = 0.24 × 611.11 kW = 146.67 kW."
+            },
+            {
+                id: 128,
+                category: "Refrigeration & Power Plants",
+                q: "A steam plant has overall efficiency = 0.35, net electric power = 10 MW, coal CV = 42,000 kJ/kg. Calculate hourly coal consumption. [Sheet 2 Q3]",
+                options: ["2449 kg/h", "680 kg/h", "5000 kg/h", "1200 kg/h"],
+                ans: 0,
+                exp: "Required Energy Input Q_in = P_net / η = 10,000 kW / 0.35 = 28,571.43 kW (kJ/s). Coal consumption rate = (28,571.43 × 3600) / 42,000 = 2448.98 kg/h ≈ 2449 kg/h."
+            },
+            {
+                id: 129,
+                category: "Refrigeration & Power Plants",
+                q: "A manufacturer uses a refrigerator with COP = 14 cooling food using ambient air at TH = 300 K as heat sink. What is the cooled food temperature TL? [Sheet 2 Q4]",
+                options: ["280 K (7°C)", "273 K (0°C)", "290 K", "250 K"],
+                ans: 0,
+                exp: "COP_R = TL / (TH - TL) ⇒ 14 = TL / (300 - TL) ⇒ 14 × (300 - TL) = TL ⇒ 4200 - 14 TL = TL ⇒ 15 TL = 4200 ⇒ TL = 280 K (7°C)."
+            },
+            {
+                id: 130,
+                category: "Refrigeration & Power Plants",
+                q: "A Carnot engine receives 500 kJ heat per cycle from source at 652°C and rejects heat to sink at 30°C. Calculate thermal efficiency and heat rejected per cycle. [Sheet 2 Q5]",
+                options: [
+                    "η = 67.23%, QL = 163.8 kJ",
+                    "η = 50.00%, QL = 250.0 kJ",
+                    "η = 95.40%, QL = 23.0 kJ",
+                    "η = 30.00%, QL = 350.0 kJ"
+                ],
+                ans: 0,
+                exp: "TH = 652 + 273.15 = 925.15 K. TL = 30 + 273.15 = 303.15 K. Carnot Eff η = 1 - (TL / TH) = 1 - (303.15 / 925.15) = 1 - 0.3276 = 67.24%. Heat Rejected QL = QH × (1 - η) = 500 × (1 - 0.6724) = 163.8 kJ."
+            },
+            {
+                id: 131,
+                category: "Refrigeration & Power Plants",
+                q: "An inventor claims a refrigerator maintains space at TL = -10°C in a room at TH = 25°C with COP = 8.5. How do you evaluate his claim? [Sheet 2 Q6]",
+                options: [
+                    "Claim is impossible (violates 2nd Law because max Carnot COP is 7.52)",
+                    "Claim is valid and feasible",
+                    "Requires nuclear power",
+                    "Depends on lubricant"
+                ],
+                ans: 0,
+                exp: "TL = -10 + 273.15 = 263.15 K. TH = 25 + 273.15 = 298.15 K. Max Carnot COP = TL / (TH - TL) = 263.15 / (298.15 - 263.15) = 263.15 / 35 = 7.52. Since claimed COP (8.5) > max Carnot COP (7.52), the claim is physically IMPOSSIBLE."
+            },
+            {
+                id: 132,
+                category: "Refrigeration & Power Plants",
+                q: "In a vapor-compression refrigeration cycle, refrigerant exits the compressor as:",
+                options: [
+                    "Subcooled liquid",
+                    "High-pressure, high-temperature superheated vapor",
+                    "Liquid-vapor mixture",
+                    "Solid frost"
+                ],
+                ans: 1,
+                exp: "The compressor takes in low-pressure vapor and compresses it into high-pressure superheated vapor."
+            },
+            {
+                id: 133,
+                category: "Refrigeration & Power Plants",
+                q: "Refrigerant passing through the expansion throttling valve undergoes:",
+                options: [
+                    "Sharp drop in pressure and temperature, forming cold liquid-vapor mixture",
+                    "Temperature increase",
+                    "Phase change to solid",
+                    "Constant pressure heating"
+                ],
+                ans: 0,
+                exp: "Throttling abruptly lowers pressure, causing flash evaporation that drops temperature."
+            },
+            {
+                id: 134,
+                category: "Refrigeration & Power Plants",
+                q: "The primary function of the Evaporator in a refrigeration cycle is to:",
+                options: [
+                    "Reject heat to surroundings",
+                    "Absorb heat (QL) from the refrigerated space to vaporize the refrigerant",
+                    "Compress the gas",
+                    "Burn fuel"
+                ],
+                ans: 1,
+                exp: "The evaporator absorbs heat QL from the cold space, boiling the cold refrigerant."
+            },
+            {
+                id: 135,
+                category: "Refrigeration & Power Plants",
+                q: "The mathematical relationship between Heat Pump COP (COP_HP) and Refrigerator COP (COP_R) is:",
+                options: ["COP_HP = COP_R - 1", "COP_HP = COP_R + 1", "COP_HP = COP_R / 2", "COP_HP = 2 × COP_R"],
+                ans: 1,
+                exp: "Since COP_HP = QH / W = (QL + W) / W = (QL/W) + 1 = COP_R + 1."
+            },
+            {
+                id: 136,
+                category: "Refrigeration & Power Plants",
+                q: "In the Rankine steam power cycle, which component increases water pressure to feed the boiler?",
+                options: ["Turbine", "Boiler", "Feed Water Pump", "Condenser"],
+                ans: 2,
+                exp: "The pump compresses liquid condensate from low condenser pressure to high boiler operating pressure."
+            },
+            {
+                id: 137,
+                category: "Refrigeration & Power Plants",
+                q: "The steam turbine converts thermal energy of high-pressure steam into:",
+                options: ["Potential energy", "Mechanical rotational shaft power", "Chemical energy", "Nuclear energy"],
+                ans: 1,
+                exp: "High-enthalpy steam expands through turbine blades, turning thermal energy into mechanical shaft power."
+            },
+            {
+                id: 138,
+                category: "Refrigeration & Power Plants",
+                q: "The Condenser in a Rankine cycle performs what role?",
+                options: [
+                    "Boils water into superheated steam",
+                    "Rejects waste heat (Qout) to condense turbine exhaust steam back into liquid water",
+                    "Increases steam pressure",
+                    "Filters stack gas"
+                ],
+                ans: 1,
+                exp: "The condenser cools exhaust steam using cooling water, condensing it into liquid water."
+            },
+            {
+                id: 139,
+                category: "Refrigeration & Power Plants",
+                q: "The Stack (chimney) in a fossil fuel steam power plant serves to:",
+                options: [
+                    "Inject water",
+                    "Discharge combustion flue gases (CO2, nitrogen) into the atmosphere",
+                    "Cool the turbine",
+                    "Store coal"
+                ],
+                ans: 1,
+                exp: "The Stack vents exhaust flue gases into the atmosphere."
+            },
+            {
+                id: 140,
+                category: "Refrigeration & Power Plants",
+                q: "Rankine cycle thermal efficiency is expressed as:",
+                options: [
+                    "η_thermal = (W_turbine - W_pump) / Q_boiler",
+                    "η_thermal = Q_boiler / W_turbine",
+                    "η_thermal = W_pump / Q_out",
+                    "η_thermal = Q_out / Q_boiler"
+                ],
+                ans: 0,
+                exp: "η_thermal = Net Work Output / Heat Input = (W_turbine - W_pump) / Q_boiler."
+            },
+
+            // TEST 6 Continued: Q141-Q150
+            {
+                id: 141,
+                category: "Refrigeration & Power Plants",
+                q: "In a solar PV-powered refrigeration system, electricity from solar panels powers:",
+                options: ["Expansion valve", "DC Motor driving the compressor", "Condenser fans only", "Cooling tower"],
+                ans: 1,
+                exp: "PV panels supply DC electric power to drive the compressor electric motor."
+            },
+            {
+                id: 142,
+                category: "Refrigeration & Power Plants",
+                q: "An air conditioner operating as a heat pump consumes W = 1.5 kW with COP_HP = 4. What is the rate of heat delivered to the room?",
+                options: ["6.0 kW (21.6 MJ/h)", "1.5 kW", "4.5 kW", "9.0 kW"],
+                ans: 0,
+                exp: "QH = COP_HP × W = 4 × 1.5 kW = 6.0 kW."
+            },
+            {
+                id: 143,
+                category: "Refrigeration & Power Plants",
+                q: "In a nuclear-powered Rankine cycle steam plant, what replaces the fossil-fuel boiler furnace?",
+                options: ["Timing belt", "Nuclear Reactor Vessel with U-235 fuel rods", "Cooling tower", "DC-DC converter"],
+                ans: 1,
+                exp: "The nuclear reactor vessel housing U-235 fuel rods generates thermal heat to create steam."
+            },
+            {
+                id: 144,
+                category: "Refrigeration & Power Plants",
+                q: "A refrigeration system configured to heat a space during winter is known as a:",
+                options: ["Refrigerator", "Heat Pump", "Evaporative cooler", "Steam Engine"],
+                ans: 1,
+                exp: "A Heat Pump operates in reverse mode during winter to heat indoor spaces."
+            },
+            {
+                id: 145,
+                category: "Refrigeration & Power Plants",
+                q: "Inside the Condenser coil, refrigerant undergoes phase change from:",
+                options: ["Liquid to gas", "Superheated vapor to condensed liquid by rejecting latent heat", "Solid to gas", "Liquid to solid"],
+                ans: 1,
+                exp: "Superheated vapor rejects latent heat to surrounding air/water, condensing into liquid."
+            },
+            {
+                id: 146,
+                category: "Refrigeration & Power Plants",
+                q: "A Rankine cycle plant has net turbine power = 2162 kW, pump power = 10 kW, cycle efficiency = 24%. Calculate boiler heat input.",
+                options: ["8966.67 kW", "516.5 kW", "10,000 kW", "2152 kW"],
+                ans: 0,
+                exp: "W_net = 2162 - 10 = 2152 kW. Q_boiler = W_net / η = 2152 / 0.24 = 8966.67 kW."
+            },
+            {
+                id: 147,
+                category: "Refrigeration & Power Plants",
+                q: "In a steam plant boiler, liquid water is boiled into high-pressure steam at:",
+                options: ["Low atmospheric pressure", "High pressure", "Constantly fluctuating pressure", "Zero pressure"],
+                ans: 1,
+                exp: "The feed pump delivers water at elevated pressure into the boiler where phase change occurs at high pressure."
+            },
+            {
+                id: 148,
+                category: "Refrigeration & Power Plants",
+                q: "The circulating working fluid that undergoes evaporation and condensation inside an HVAC cycle is called the:",
+                options: ["Water solution", "Refrigerant", "Fuel Oil", "Air"],
+                ans: 1,
+                exp: "The Refrigerant (e.g., R-134a, R-410A) is the thermodynamic working fluid."
+            },
+            {
+                id: 149,
+                category: "Refrigeration & Power Plants",
+                q: "The thermal efficiency of any real-world heat engine cannot exceed the maximum efficiency of a theoretical:",
+                options: ["Diesel Engine", "Carnot Engine operating between the same temperature limits", "100% engine", "Transformer"],
+                ans: 1,
+                exp: "The Carnot cycle establishes the upper thermodynamic limit for heat engine efficiency."
+            },
+            {
+                id: 150,
+                category: "Refrigeration & Power Plants",
+                q: "In a Rankine cycle steam power plant, which component consumes external mechanical/electrical power?",
+                options: ["Turbine", "Feed Water Pump", "Condenser", "Boiler"],
+                ans: 1,
+                exp: "The feed water pump requires electrical/mechanical shaft power to pump liquid water into the high-pressure boiler."
+            }
+        ];
+
+        // State Variables
+        let activeMode = 'test1';
+        let userAnswers = {}; // { qId: chosenIndex }
+        let currentQuestions = [];
+
+        // App Initialization
+        window.onload = function() {
+            selectMode('test1');
+        };
+
+        // Mode Switcher
+        function selectMode(mode) {
+            activeMode = mode;
+            
+            // Update Tab Styling
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.className = 'mode-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap transition';
+            });
+            const activeTabBtn = document.getElementById(`tab-${mode}`);
+            if (activeTabBtn) {
+                activeTabBtn.className = 'mode-tab px-3 py-1.5 rounded-lg bg-sky-500 text-white shadow-md shadow-sky-500/20 whitespace-nowrap transition font-bold';
+            }
+
+            // Filter Questions Based on Mode
+            if (mode === 'test1') currentQuestions = rawQuestions.slice(0, 25);
+            else if (mode === 'test2') currentQuestions = rawQuestions.slice(25, 50);
+            else if (mode === 'test3') currentQuestions = rawQuestions.slice(50, 75);
+            else if (mode === 'test4') currentQuestions = rawQuestions.slice(75, 100);
+            else if (mode === 'test5') currentQuestions = rawQuestions.slice(100, 125);
+            else if (mode === 'test6') currentQuestions = rawQuestions.slice(125, 150);
+            else if (mode === 'all') currentQuestions = [...rawQuestions];
+
+            // Reset topic dropdown filter
+            document.getElementById('topic-select').value = 'all';
+            document.getElementById('search-input').value = '';
+
+            renderQuestions();
+            updateScoreAndGrid();
+        }
+
+        // Question Filtering
+        function filterQuestions() {
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            const topic = document.getElementById('topic-select').value;
+
+            let baseSet = [...rawQuestions];
+            if (activeMode !== 'all') {
+                if (activeMode === 'test1') baseSet = rawQuestions.slice(0, 25);
+                else if (activeMode === 'test2') baseSet = rawQuestions.slice(25, 50);
+                else if (activeMode === 'test3') baseSet = rawQuestions.slice(50, 75);
+                else if (activeMode === 'test4') baseSet = rawQuestions.slice(75, 100);
+                else if (activeMode === 'test5') baseSet = rawQuestions.slice(100, 125);
+                else if (activeMode === 'test6') baseSet = rawQuestions.slice(125, 150);
+            }
+
+            currentQuestions = baseSet.filter(q => {
+                const matchesTopic = (topic === 'all') || (q.category === topic);
+                const matchesSearch = q.q.toLowerCase().includes(searchText) || 
+                                      q.options.some(o => o.toLowerCase().includes(searchText)) ||
+                                      q.exp.toLowerCase().includes(searchText);
+                return matchesTopic && matchesSearch;
+            });
+
+            renderQuestions();
+        }
+
+        // Render Question Cards
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            if (currentQuestions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 glass-card rounded-2xl">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3"></i>
+                        <p class="text-sm text-slate-400 font-semibold">No questions match your current search or topic filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            currentQuestions.forEach(q => {
+                const isAnswered = userAnswers.hasOwnProperty(q.id);
+                const userAnswer = userAnswers[q.id];
+
+                let cardHtml = `
+                    <div id="q-card-${q.id}" class="glass-card rounded-2xl p-5 border border-slate-800 transition hover:border-slate-700">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+                            <span class="px-2.5 py-0.5 bg-sky-500/20 text-sky-400 font-extrabold text-[11px] rounded-lg border border-sky-500/30">
+                                Question ${q.id}
+                            </span>
+                            <span class="text-[11px] font-semibold text-slate-400">
+                                <i class="fa-solid fa-tag text-indigo-400 mr-1"></i>${q.category}
+                            </span>
+                        </div>
+
+                        <h3 class="text-xs sm:text-sm font-bold text-white mb-4 leading-relaxed">
+                            ${q.q}
+                        </h3>
+
+                        <!-- Options List -->
+                        <div class="space-y-2 mb-4">
+                `;
+
+                q.options.forEach((opt, idx) => {
+                    let optStyle = "bg-slate-900 border-slate-700/80 text-slate-300 hover:bg-slate-800/80";
+                    let iconHtml = `<span class="w-5 h-5 rounded-full border border-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-400 mr-2.5">${String.fromCharCode(65 + idx)}</span>`;
+
+                    if (isAnswered) {
+                        if (idx === q.ans) {
+                            optStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold";
+                            iconHtml = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm mr-2.5"></i>`;
+                        } else if (idx === userAnswer) {
+                            optStyle = "bg-rose-500/20 border-rose-500 text-rose-300 font-bold";
+                            iconHtml = `<i class="fa-solid fa-circle-xmark text-rose-400 text-sm mr-2.5"></i>`;
+                        } else {
+                            optStyle = "bg-slate-900/50 border-slate-800 text-slate-500 opacity-60";
+                        }
+                    }
+
+                    cardHtml += `
+                        <button onclick="handleOptionSelect(${q.id}, ${idx})" ${isAnswered ? 'disabled' : ''}
+                                class="option-btn w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center ${optStyle}">
+                            ${iconHtml}
+                            <span class="flex-grow">${opt}</span>
+                        </button>
+                    `;
+                });
+
+                cardHtml += `</div>`;
+
+                // Explanation Section (Only revealed if answered)
+                if (isAnswered) {
+                    const isCorrect = (userAnswer === q.ans);
+                    cardHtml += `
+                        <div class="mt-3 p-3.5 rounded-xl text-xs border ${isCorrect ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-200' : 'bg-rose-950/40 border-rose-500/30 text-rose-200'}">
+                            <div class="flex items-center gap-1.5 font-bold mb-1.5 ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">
+                                <i class="fa-solid ${isCorrect ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+                                <span>${isCorrect ? 'Correct Answer!' : 'Incorrect Choice'}</span>
+                            </div>
+                            <p class="text-slate-300 leading-relaxed"><strong class="text-white">Explanation & Formula:</strong> ${q.exp}</p>
+                        </div>
+                    `;
+                }
+
+                cardHtml += `</div>`;
+                container.innerHTML += cardHtml;
+            });
+
+            // Re-render KaTeX Math Equations
+            if (window.renderMathInElement) {
+                renderMathInElement(container, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+            }
+        }
+
+        // Option Selection Handler
+        function handleOptionSelect(qId, idx) {
+            userAnswers[qId] = idx;
+            renderQuestions();
+            updateScoreAndGrid();
+        }
+
+        // Live Score & Navigation Grid Update
+        function updateScoreAndGrid() {
+            let totalAnswered = Object.keys(userAnswers).length;
+            let totalCorrect = 0;
+
+            rawQuestions.forEach(q => {
+                if (userAnswers.hasOwnProperty(q.id) && userAnswers[q.id] === q.ans) {
+                    totalCorrect++;
+                }
+            });
+
+            let percentage = totalAnswered > 0 ? ((totalCorrect / totalAnswered) * 100).toFixed(1) : 0;
+            document.getElementById('score-text').innerText = `${totalCorrect} / ${totalAnswered} (${percentage}%)`;
+
+            // Update Grid Modal Buttons
+            const gridContainer = document.getElementById('grid-items');
+            gridContainer.innerHTML = '';
+
+            rawQuestions.forEach(q => {
+                let btnStyle = "bg-slate-800 text-slate-400 border-slate-700";
+                if (userAnswers.hasOwnProperty(q.id)) {
+                    btnStyle = (userAnswers[q.id] === q.ans) 
+                        ? "bg-emerald-500 text-slate-950 font-bold border-emerald-400" 
+                        : "bg-rose-500 text-white font-bold border-rose-400";
+                }
+
+                gridContainer.innerHTML += `
+                    <button onclick="jumpToQuestion(${q.id})" class="p-2 text-xs rounded-lg border text-center transition hover:scale-105 ${btnStyle}">
+                        ${q.id}
+                    </button>
+                `;
+            });
+        }
+
+        // Jump to Question from Grid
+        function jumpToQuestion(qId) {
+            toggleGridModal();
+            // Set mode to 'all' if question not in current view
+            if (!currentQuestions.some(q => q.id === qId)) {
+                selectMode('all');
+            }
+            setTimeout(() => {
+                const el = document.getElementById(`q-card-${qId}`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        // Modal Controls
+        function toggleGridModal() {
+            document.getElementById('grid-modal').classList.toggle('hidden');
+        }
+
+        function toggleFormulaModal() {
+            const modal = document.getElementById('formula-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden') && window.renderMathInElement) {
+                renderMathInElement(modal, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+            }
+        }
+    </script>
+</body>
+</html>
